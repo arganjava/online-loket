@@ -29,6 +29,8 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
+	if err := db.Ping(); err != nil {
+		panic(err)
+	}
 	routers.SetupServer(db).Run(getEnv("TICKET_APP_PORT"))
-
 }

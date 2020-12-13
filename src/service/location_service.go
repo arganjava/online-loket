@@ -59,7 +59,7 @@ func (l LocationService) FindLocationById(id string) (*models.Location, error) {
 		log.Print(err)
 		return nil, err
 	}
-
+	defer rows.Close()
 	if rows.Next() {
 		location := &models.Location{}
 		err = rows.Scan(&location.ID, &location.Country, &location.CityName, &location.Village, &location.Address)
@@ -69,7 +69,6 @@ func (l LocationService) FindLocationById(id string) (*models.Location, error) {
 			return location, nil
 		}
 	}
-	defer rows.Close()
 	return nil, nil
 }
 
@@ -80,9 +79,9 @@ func (l LocationService) isLocationExist(location dto.LocationRequest) (bool, er
 		log.Print(err)
 		return false, err
 	}
+	defer rows.Close()
 	if rows.Next() {
 		return true, nil
 	}
-	defer rows.Close()
 	return false, nil
 }
