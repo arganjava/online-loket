@@ -1,4 +1,4 @@
-package service_repository
+package interfaces
 
 import (
 	"github.com/arganjava/online-loket/src/dto"

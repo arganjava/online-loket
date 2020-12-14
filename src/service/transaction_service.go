@@ -5,18 +5,18 @@ import (
 	"database/sql"
 	"fmt"
 	"github.com/arganjava/online-loket/src/dto"
+	"github.com/arganjava/online-loket/src/interfaces"
 	"github.com/arganjava/online-loket/src/models"
-	"github.com/arganjava/online-loket/src/service_repository"
 	uuid "github.com/satori/go.uuid"
 	"log"
 )
 
 type TransactionService struct {
 	db        *sql.DB
-	eventRepo service_repository.EventRepository
+	eventRepo interfaces.EventRepository
 }
 
-func NewTransactionService(db *sql.DB, eventRepo service_repository.EventRepository) *TransactionService {
+func NewTransactionService(db *sql.DB, eventRepo interfaces.EventRepository) *TransactionService {
 	return &TransactionService{
 		db:        db,
 		eventRepo: eventRepo,

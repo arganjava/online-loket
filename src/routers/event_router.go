@@ -2,18 +2,18 @@ package routers
 
 import (
 	"github.com/arganjava/online-loket/src/dto"
+	"github.com/arganjava/online-loket/src/interfaces"
 	"github.com/arganjava/online-loket/src/models"
-	"github.com/arganjava/online-loket/src/service_repository"
 	"github.com/gin-gonic/gin"
 	"gopkg.in/validator.v2"
 	"net/http"
 )
 
 type EventRouter struct {
-	eventRepository service_repository.EventRepository
+	eventRepository interfaces.EventRepository
 }
 
-func NewEventRouter(eventRepository service_repository.EventRepository) *EventRouter {
+func NewEventRouter(eventRepository interfaces.EventRepository) *EventRouter {
 	return &EventRouter{
 		eventRepository: eventRepository,
 	}

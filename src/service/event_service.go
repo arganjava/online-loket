@@ -5,8 +5,8 @@ import (
 	"database/sql"
 	"fmt"
 	"github.com/arganjava/online-loket/src/dto"
+	"github.com/arganjava/online-loket/src/interfaces"
 	"github.com/arganjava/online-loket/src/models"
-	"github.com/arganjava/online-loket/src/service_repository"
 	uuid "github.com/satori/go.uuid"
 	"log"
 	"time"
@@ -14,10 +14,10 @@ import (
 
 type EventService struct {
 	db           *sql.DB
-	locationRepo service_repository.LocationRepository
+	locationRepo interfaces.LocationRepository
 }
 
-func NewEventService(db *sql.DB, locationRepository service_repository.LocationRepository) *EventService {
+func NewEventService(db *sql.DB, locationRepository interfaces.LocationRepository) *EventService {
 	return &EventService{
 		db:           db,
 		locationRepo: locationRepository,

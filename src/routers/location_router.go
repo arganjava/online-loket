@@ -2,17 +2,17 @@ package routers
 
 import (
 	"github.com/arganjava/online-loket/src/dto"
-	"github.com/arganjava/online-loket/src/service_repository"
+	"github.com/arganjava/online-loket/src/interfaces"
 	"github.com/gin-gonic/gin"
 	"gopkg.in/validator.v2"
 	"net/http"
 )
 
 type LocationRouter struct {
-	locationService service_repository.LocationRepository
+	locationService interfaces.LocationRepository
 }
 
-func NewLocationRouter(locationService service_repository.LocationRepository) *LocationRouter {
+func NewLocationRouter(locationService interfaces.LocationRepository) *LocationRouter {
 	return &LocationRouter{
 		locationService: locationService,
 	}

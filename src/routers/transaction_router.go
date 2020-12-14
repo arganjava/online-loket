@@ -2,18 +2,18 @@ package routers
 
 import (
 	"github.com/arganjava/online-loket/src/dto"
+	"github.com/arganjava/online-loket/src/interfaces"
 	"github.com/arganjava/online-loket/src/models"
-	"github.com/arganjava/online-loket/src/service_repository"
 	"github.com/gin-gonic/gin"
 	"gopkg.in/validator.v2"
 	"net/http"
 )
 
 type TransactionRouter struct {
-	eventRepository service_repository.TransactionRepository
+	eventRepository interfaces.TransactionRepository
 }
 
-func NewTransactionRouter(eventRepository service_repository.TransactionRepository) *TransactionRouter {
+func NewTransactionRouter(eventRepository interfaces.TransactionRepository) *TransactionRouter {
 	return &TransactionRouter{
 		eventRepository: eventRepository,
 	}
