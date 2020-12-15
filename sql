@@ -107,7 +107,9 @@ ae5733f8-3d20-40d5-b6b2-caa56e2d36c8	30c71f1a-da5b-43df-a8fc-091c8e4452d7	ADULT	
 --
 
 COPY public.location (country, city_name, id, address, village) FROM stdin;
-Indonesia	Bandung	1ad5ae0e-9e49-4025-90aa-295e1a4bd886	test	test
+Indonesia	Jakarta	69707ecf-0dfa-49e4-84c8-36755003ff2a	Address	village1
+Indonesia	Bandung	1ad5ae0e-9e49-4025-90aa-295e1a4bd886	Address	Ujung Berung
+Indonesia	Bekasi	c2366d15-2b4e-471c-8785-f5ffa5f06184	Address	Test
 \.
 
 
