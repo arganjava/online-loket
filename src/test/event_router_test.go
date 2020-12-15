@@ -91,10 +91,6 @@ func TestEventRouter_CreateEvent(t *testing.T) {
 			Convey("And Then Fail Query Scan Location Data Return 0 and Error", func() {
 				rsLocation := sqlmock.NewRows([]string{"id", "country", "city_name"}).AddRow("id", "country", "city_name")
 				mock.ExpectQuery(regexp.QuoteMeta(``)).WithArgs("1ad5ae0e-9e49-4025-90aa-295e1a4bd886").WillReturnRows(rsLocation) //findLocation
-				/*mock.ExpectQuery(regexp.QuoteMeta(``)).WithArgs("1ad5ae0e-9e49-4025-90aa-295e1a4bd886",
-				"Badut Kota",
-				"2020-12-30",
-				"2021-01-30").WillReturnError(fmt.Errorf("error"))*/ //findEvent
 				eventRepository.On("CreateEvent", mockTest.Anything).Return(nil, mockTest.Anything)
 				respApi, _ := http.Post(endpoint, "application/json", bytes.NewBuffer(requestBody))
 				body, _ := ioutil.ReadAll(respApi.Body)
@@ -124,6 +120,70 @@ func TestEventRouter_CreateEvent(t *testing.T) {
 				//body, _ := ioutil.ReadAll(respApi.Body)
 				So(respApi.StatusCode, ShouldEqual, 500)
 				//				So(string(body), ShouldEqual, `{"message":"error","status":500}`)
+			})
+
+			Convey("And Then Schedule Begin fail parse Return 0 and Error", func() {
+				rsLocation := sqlmock.NewRows([]string{"id", "country", "city_name", "village", "address"}).AddRow("id", "country", "city_name", "village", "address")
+				mock.ExpectQuery(regexp.QuoteMeta(``)).WithArgs("1ad5ae0e-9e49-4025-90aa-295e1a4bd886").WillReturnRows(rsLocation) //findLocation
+				scheduleBegin, err := time.Parse("2006-01-02", "2020-12-30")
+				if err != nil {
+					panic(err)
+				}
+				scheduleEnd, err := time.Parse("2006-01-02", "2021-01-30")
+				if err != nil {
+					panic(err)
+				}
+				rsEvent := sqlmock.NewRows([]string{"event_name", "schedule_begin", "schedule_end", "location_id"}).AddRow("event_name", "schedule_begin", "schedule_end", "location_id")
+				mock.ExpectQuery(regexp.QuoteMeta(``)).WithArgs(
+					"1ad5ae0e-9e49-4025-90aa-295e1a4bd886",
+					"Badut Kota",
+					scheduleBegin,
+					scheduleEnd).WillReturnRows(rsEvent) //findEvent
+
+				requestBodyScheduleBeginError, _ := json.Marshal(map[string]string{
+					"locationId":    "1ad5ae0e-9e49-4025-90aa-295e1a4bd886",
+					"eventName":     "Badut Kota",
+					"description":   "Desc",
+					"scheduleBegin": "2020D-12-30",
+					"scheduleEnd":   "2021-01-30",
+				})
+				eventRepository.On("CreateEvent", mockTest.Anything).Return(nil, mockTest.Anything)
+				respApi, _ := http.Post(endpoint, "application/json", bytes.NewBuffer(requestBodyScheduleBeginError))
+				body, _ := ioutil.ReadAll(respApi.Body)
+				So(respApi.StatusCode, ShouldEqual, 500)
+				So(string(body), ShouldEqual, `{"message":"fail parse schedule begin, it format must 2006-01-02","status":500}`)
+			})
+
+			Convey("And Then Schedule End fail parse Return 0 and Error", func() {
+				rsLocation := sqlmock.NewRows([]string{"id", "country", "city_name", "village", "address"}).AddRow("id", "country", "city_name", "village", "address")
+				mock.ExpectQuery(regexp.QuoteMeta(``)).WithArgs("1ad5ae0e-9e49-4025-90aa-295e1a4bd886").WillReturnRows(rsLocation) //findLocation
+				scheduleBegin, err := time.Parse("2006-01-02", "2020-12-30")
+				if err != nil {
+					panic(err)
+				}
+				scheduleEnd, err := time.Parse("2006-01-02", "2021-01-30")
+				if err != nil {
+					panic(err)
+				}
+				rsEvent := sqlmock.NewRows([]string{"event_name", "schedule_begin", "schedule_end", "location_id"}).AddRow("event_name", "schedule_begin", "schedule_end", "location_id")
+				mock.ExpectQuery(regexp.QuoteMeta(``)).WithArgs(
+					"1ad5ae0e-9e49-4025-90aa-295e1a4bd886",
+					"Badut Kota",
+					scheduleBegin,
+					scheduleEnd).WillReturnRows(rsEvent) //findEvent
+
+				requestBodyScheduleBeginError, _ := json.Marshal(map[string]string{
+					"locationId":    "1ad5ae0e-9e49-4025-90aa-295e1a4bd886",
+					"eventName":     "Badut Kota",
+					"description":   "Desc",
+					"scheduleBegin": "2020-12-30",
+					"scheduleEnd":   "2021D-01-30",
+				})
+				eventRepository.On("CreateEvent", mockTest.Anything).Return(nil, mockTest.Anything)
+				respApi, _ := http.Post(endpoint, "application/json", bytes.NewBuffer(requestBodyScheduleBeginError))
+				body, _ := ioutil.ReadAll(respApi.Body)
+				So(respApi.StatusCode, ShouldEqual, 500)
+				So(string(body), ShouldEqual, `{"message":"fail parse schedule end, it format must 2006-01-02","status":500}`)
 			})
 
 			Convey("And Then Event Already Exist Return 0 and Error", func() {
@@ -289,7 +349,6 @@ func TestEventRouter_CreateEventTicket(t *testing.T) {
 				"price":    2,
 			})
 
-			//eventRepository := &repository.MockEventRepository{}
 			endpoint := fmt.Sprintf("%s/api/v1/event/ticket/create", ts.URL)
 
 			Convey("Then Fail Bad Request 400 fields not complete", func() {
@@ -299,7 +358,7 @@ func TestEventRouter_CreateEventTicket(t *testing.T) {
 				So(string(body), ShouldEqual, `{"msg":"Key: 'EventTicketRequest.EventId' Error:Field validation for 'EventId' failed on the 'required' tag\nKey: 'EventTicketRequest.Type' Error:Field validation for 'Type' failed on the 'required' tag\nKey: 'EventTicketRequest.Quantity' Error:Field validation for 'Quantity' failed on the 'required' tag\nKey: 'EventTicketRequest.Price' Error:Field validation for 'Price' failed on the 'required' tag"}`)
 			})
 
-			Convey("And Then Fail Bad Request 400 fields validation Country: greater than max ", func() {
+			Convey("And Then Fail Bad Request 400 fields validation Type must between CHILD or ADULT", func() {
 				respApi, _ := http.Post(endpoint, "application/json", bytes.NewBuffer(requestBody404Validate))
 				body, _ := ioutil.ReadAll(respApi.Body)
 				So(respApi.StatusCode, ShouldEqual, 400)
@@ -450,6 +509,90 @@ func TestEventRouter_CreateEventTicket(t *testing.T) {
 				body, _ := ioutil.ReadAll(respApi.Body)
 				So(respApi.StatusCode, ShouldEqual, 201)
 				So(string(body), ShouldEqual, `{"message":"Event Ticket created successfully!","status":201}`)
+			})
+
+		})
+	})
+}
+
+func TestEventRouter_GetInfoEvent(t *testing.T) {
+	Convey("Given Get Info Transaction Purchase", t, func() {
+		Convey("When User Get Info Transaction Purchase", func() {
+			mockDB, mock, err := sqlmock.New()
+			if err != nil {
+				t.Fatalf("an error '%s' was not expected when opening a stub database connection", err)
+			}
+			defer mockDB.Close()
+			ts := httptest.NewServer(routers.SetupServer(mockDB))
+			defer ts.Close()
+			id := "30c71f1a-da5b-43df-a8fc-091c8e4452d7"
+			endpoint := fmt.Sprintf("%s/api/v1/event/get_info/%v", ts.URL, id)
+			Convey("And Then Fail Query Event Return Error", func() {
+				mock.ExpectQuery(regexp.QuoteMeta(``)).WithArgs("30c71f1a-da5b-43df-a8fc-091c8e4452d7").WillReturnError(fmt.Errorf("error")) //findTransaction
+				respApi, _ := http.Get(endpoint)
+				body, _ := ioutil.ReadAll(respApi.Body)
+				So(respApi.StatusCode, ShouldEqual, 500)
+				So(string(body), ShouldEqual, `{"message":"error","status":500}`)
+			})
+
+			Convey("And Then Data Not Found Return Success", func() {
+				rsTransaction := sqlmock.NewRows([]string{"id", "customer_name", "customer_phone", "customer_email", "order_quantity", "transaction_time", "event_ticket_id"})
+				mock.ExpectQuery(regexp.QuoteMeta(``)).WithArgs("30c71f1a-da5b-43df-a8fc-091c8e4452d7").WillReturnRows(rsTransaction) //findTransaction
+				respApi, _ := http.Get(endpoint)
+				body, _ := ioutil.ReadAll(respApi.Body)
+				So(respApi.StatusCode, ShouldEqual, 200)
+				So(string(body), ShouldEqual, `{"data":null,"message":"Data not found","status":200}`)
+			})
+
+			Convey("And Then Query Event Data Not found Return null and Error", func() {
+				rsEvent := sqlmock.NewRows([]string{"id", "event_name", "description", "schedule_begin", "schedule_end", "location_id"})
+				mock.ExpectQuery(regexp.QuoteMeta(``)).WithArgs("30c71f1a-da5b-43df-a8fc-091c8e4452d7").WillReturnRows(rsEvent) //findEvent
+				respApi, _ := http.Get(endpoint)
+				body, _ := ioutil.ReadAll(respApi.Body)
+				So(respApi.StatusCode, ShouldEqual, 200)
+				So(string(body), ShouldEqual, `{"data":null,"message":"Data not found","status":200}`)
+			})
+
+			Convey("And Then Query Event Data found error scan Return data null and Error", func() {
+				rsEvent := sqlmock.NewRows([]string{"id", "event_name", "description", "schedule_begin", "schedule_end", "location_id"}).AddRow("id", "event_name", "description", "schedule_begin", "schedule_end", "location_id")
+				mock.ExpectQuery(regexp.QuoteMeta(``)).WithArgs("30c71f1a-da5b-43df-a8fc-091c8e4452d7").WillReturnRows(rsEvent) //findEvent
+				respApi, _ := http.Get(endpoint)
+				body, _ := ioutil.ReadAll(respApi.Body)
+				So(respApi.StatusCode, ShouldEqual, 500)
+				So(string(body), ShouldEqual, `{"message":"sql: Scan error on column index 3, name \"schedule_begin\": unsupported Scan, storing driver.Value type string into type *time.Time","status":500}`)
+			})
+
+			Convey("And Then Fail Query Event Ticket Data Return data null and Error", func() {
+				rsEvent := sqlmock.NewRows([]string{"id", "event_name", "description", "schedule_begin", "schedule_end", "location_id"}).AddRow("id", "event_name", "description", time.Now(), time.Now(), "location_id")
+				mock.ExpectQuery(regexp.QuoteMeta(``)).WithArgs("30c71f1a-da5b-43df-a8fc-091c8e4452d7").WillReturnRows(rsEvent) //findEvent
+
+				rsLocation := sqlmock.NewRows([]string{"id", "country", "city_name", "village", "address"}).AddRow("id", "country", "city_name", "village", "address")
+				mock.ExpectQuery(regexp.QuoteMeta(``)).WithArgs("location_id").WillReturnRows(rsLocation) //findLocation
+
+				mock.ExpectQuery(regexp.QuoteMeta(``)).WithArgs("id").WillReturnError(fmt.Errorf("error")) //findTicket
+
+				respApi, _ := http.Get(endpoint)
+				body, _ := ioutil.ReadAll(respApi.Body)
+				So(respApi.StatusCode, ShouldEqual, 500)
+				So(string(body), ShouldEqual, `{"message":"error","status":500}`)
+			})
+
+			Convey("And Then Query Event Ticket Data Exist Return data and Success", func() {
+				rsEvent := sqlmock.NewRows([]string{"id", "event_name", "description", "schedule_begin", "schedule_end", "location_id"}).AddRow("id", "event_name", "description", time.Now(), time.Now(), "location_id")
+				mock.ExpectQuery(regexp.QuoteMeta(``)).WithArgs("30c71f1a-da5b-43df-a8fc-091c8e4452d7").WillReturnRows(rsEvent) //findEvent
+
+				rsLocation := sqlmock.NewRows([]string{"id", "country", "city_name", "village", "address"}).AddRow("id", "country", "city_name", "village", "address")
+				mock.ExpectQuery(regexp.QuoteMeta(``)).WithArgs("location_id").WillReturnRows(rsLocation) //findLocation
+
+				rsTickets := sqlmock.NewRows([]string{"id", "country", "city_name", "village", "address"})
+				mock.ExpectQuery(regexp.QuoteMeta(``)).WithArgs("id").WillReturnRows(rsTickets) //findTickets
+
+				rsTicketExist := sqlmock.NewRows([]string{"event_id", "ticket_type"}).AddRow("event_id", "ticket_type")
+				mock.ExpectQuery(regexp.QuoteMeta(``)).WithArgs("30c71f1a-da5b-43df-a8fc-091c8e4452d7", "ADULT").WillReturnRows(rsTicketExist) //findTicketExist
+
+				respApi, _ := http.Get(endpoint)
+				//body, _ := ioutil.ReadAll(respApi.Body)
+				So(respApi.StatusCode, ShouldEqual, 200)
 			})
 
 		})

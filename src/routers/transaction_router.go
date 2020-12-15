@@ -46,8 +46,10 @@ func (l TransactionRouter) GetTransactionInfo(c *gin.Context) {
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"status": http.StatusInternalServerError, "message": err.Error()})
 		return
+	} else if data == nil {
+		c.JSON(http.StatusOK, gin.H{"status": http.StatusOK, "message": "Data not found", "data": nil})
+		return
 	}
-
 	c.JSON(http.StatusOK, gin.H{"status": http.StatusOK, "message": "Transaction Get successfully!", "data": buildTransactionResponse(data)})
 }
 

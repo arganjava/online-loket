@@ -45,7 +45,7 @@ func (l TransactionService) CreateTransaction(request dto.TransactionRequest) (i
 	isAvailable, remainQuantity := l.isAvailableQuota(ticket, request)
 
 	if !isAvailable {
-		return 0, fmt.Errorf("Event Ticket sold %v ", ticket.ID)
+		return 0, fmt.Errorf("Event Ticket not enough quota for %v ", ticket.ID)
 	}
 
 	id := uuid.NewV4()

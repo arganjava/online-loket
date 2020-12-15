@@ -137,7 +137,6 @@ func (l EventService) FindEventTicketId(id string) (*models.EventTicket, error) 
 }
 
 func (l EventService) FindEventById(id string) (*models.Event, error) {
-	l.db.Begin()
 	rows, err := l.db.Query("SELECT id, event_name, description, schedule_begin, schedule_end, location_id  FROM event "+
 		"WHERE id = $1",
 		id)
@@ -200,11 +199,11 @@ func (l EventService) findTicketsByEventId(id string) ([]*models.EventTicket, er
 func (l EventService) isEventExist(request dto.EventRequest) (bool, error) {
 	scheduleBegin, err := time.Parse("2006-01-02", request.ScheduleBegin)
 	if err != nil {
-		return false, err
+		return false, fmt.Errorf("fail parse schedule begin, it format must 2006-01-02")
 	}
 	scheduleEnd, err := time.Parse("2006-01-02", request.ScheduleEnd)
 	if err != nil {
-		return false, err
+		return false, fmt.Errorf("fail parse schedule end, it format must 2006-01-02")
 	}
 
 	rows, err := l.db.Query("SELECT event_name, schedule_begin, schedule_end, location_id  FROM event "+

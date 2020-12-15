@@ -46,6 +46,9 @@ func (l EventRouter) GetEventInfo(c *gin.Context) {
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"status": http.StatusInternalServerError, "message": err.Error()})
 		return
+	} else if data == nil {
+		c.JSON(http.StatusOK, gin.H{"status": http.StatusOK, "message": "Data not found", "data": nil})
+		return
 	}
 
 	c.JSON(http.StatusOK, gin.H{"status": http.StatusOK, "message": "Event Get successfully!", "data": buildEventResponse(data)})
@@ -55,11 +58,6 @@ func (l EventRouter) GetEventInfo(c *gin.Context) {
 func (l EventRouter) CreateEventTicket(c *gin.Context) {
 	var request dto.EventTicketRequest
 	if err := c.ShouldBindJSON(&request); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"msg": err.Error()})
-		return
-	}
-
-	if err := validator.Validate(request); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"msg": err.Error()})
 		return
 	}
