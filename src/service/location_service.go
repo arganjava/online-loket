@@ -26,7 +26,7 @@ func (l LocationService) CreateLocation(location dto.LocationRequest) (int64, er
 		return 0, err
 	}
 	if isExist {
-		return 0, fmt.Errorf("Location already exist for %v %v", location.Country, location.CityName)
+		return 0, fmt.Errorf("Location already exist for %v %v %v", location.Country, location.CityName, location.Village)
 	}
 	ctx := context.Background()
 	tx, err := l.db.BeginTx(ctx, nil)
@@ -37,8 +37,8 @@ func (l LocationService) CreateLocation(location dto.LocationRequest) (int64, er
 	id := uuid.NewV4()
 	sid := id.String()
 
-	sql := fmt.Sprintf("INSERT INTO location (id, country, city_name, address) VALUES ('%v', '%v', '%v', '%v')",
-		sid, location.Country, location.CityName, location.Address)
+	sql := fmt.Sprintf("INSERT INTO location (id, country, city_name, address, village) VALUES ('%v', '%v', '%v', '%v', '%v')",
+		sid, location.Country, location.CityName, location.Address, location.Village)
 	result, err := tx.ExecContext(ctx, sql)
 	if err != nil {
 		log.Print(err)

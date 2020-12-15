@@ -78,7 +78,7 @@ func TestLocationRouter_CreateLocation(t *testing.T) {
 				respApi, _ := http.Post(endpoint, "application/json", bytes.NewBuffer(requestBody))
 				body, _ := ioutil.ReadAll(respApi.Body)
 				So(respApi.StatusCode, ShouldEqual, 500)
-				So(string(body), ShouldEqual, `{"message":"Location already exist for Indonesia Bandung","status":500}`)
+				So(string(body), ShouldEqual, `{"message":"Location already exist for Indonesia Bandung Ujung Berung","status":500}`)
 			})
 
 			Convey("And Then Data Not Exist and Fail BeginTx Return 0 and Error", func() {
